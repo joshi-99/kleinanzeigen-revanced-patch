@@ -22,40 +22,8 @@ jobs:
       - name: Apply Kleinanzeigen 2026.33.1 fix
         working-directory: revanced-patches
         run: |
-          python3 <<'PY'
-          from pathlib import Path
+          python3 -c 'import base64, pathlib; p=pathlib.Path("patches/src/main/kotlin/app/revanced/patches/kleinanzeigen/ads/Fingerprints.kt"); p.write_bytes(base64.b64decode("cGFja2FnZSBhcHAucmV2YW5jZWQucGF0Y2hlcy5rbGVpbmFuemVpZ2VuLmFkcwoKaW1wb3J0IGFwcC5yZXZhbmNlZC5wYXRjaGVyLmdldHRpbmdGaXJzdE1ldGhvZERlY2xhcmF0aXZlbHkKaW1wb3J0IGFwcC5yZXZhbmNlZC5wYXRjaGVyLnBhcmFtZXRlclR5cGVzCmltcG9ydCBhcHAucmV2YW5jZWQucGF0Y2hlci5yZXR1cm5UeXBlCmltcG9ydCBhcHAucmV2YW5jZWQucGF0Y2hlci5zdHJpbmdzCmltcG9ydCBhcHAucmV2YW5jZWQucGF0Y2hlci5wYXRjaC5CeXRlY29kZVBhdGNoQ29udGV4dAoKaW50ZXJuYWwgdmFsIEJ5dGVjb2RlUGF0Y2hDb250ZXh0LmdldExpYmVydHlJbml0TWV0aG9kIGJ5IGdldHRpbmdGaXJzdE1ldGhvZERlY2xhcmF0aXZlbHkgewogICAgcmV0dXJuVHlwZSgiViIpCiAgICBwYXJhbWV0ZXJUeXBlcygiTGphdmEvdXRpbC9BcnJheUxpc3Q7IikKICAgIHN0cmluZ3MoCiAgICAgICAgIktFWV9MSUJFUlRZX1JFRlJFU0hfSU5URVJWQUwiLAogICAgICAgICJodHRwczovL2liLmFkbnhzLmNvbS9vcGVucnRiMi9wcmViaWQiLAogICAgICAgICJsaWJlcnR5Q29uZmlnIiwKICAgICAgICAiTWljcm9zb2Z0Q2xhcml0eVNlcnZpY2U6IEZhaWxlZCB0byBpbml0aWFsaXplIE1pY3Jvc29mdCBDbGFyaXR5IFNESyIKICAgICkKfQo=")); print(p.read_text())'
 
-          path = Path("patches/src/main/kotlin/app/revanced/patches/kleinanzeigen/ads/Fingerprints.kt")
-          text = path.read_text()
-
-          old = "\n".join([
-              "internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {",
-              '    name("init")',
-              '    definingClass("/Liberty;")',
-              "}"
-          ])
-
-          new = "\n".join([
-              "internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {",
-              '    returnType("V")',
-              '    parameterTypes("Ljava/util/ArrayList;")',
-              "    strings(",
-              '        "KEY_LIBERTY_REFRESH_INTERVAL",',
-              '        "https://ib.adnxs.com/openrtb2/prebid",',
-              '        "libertyConfig",',
-              '        "MicrosoftClarityService: Failed to initialize Microsoft Clarity SDK"',
-              "    )",
-              "}"
-          ])
-
-          if old not in text:
-              print("ERROR: The expected original Kleinanzeigen fingerprint was not found.")
-              print(text)
-              raise SystemExit(1)
-
-          path.write_text(text.replace(old, new))
-          print("Kleinanzeigen fingerprint replaced successfully.")
-          PY      
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
@@ -82,5 +50,5 @@ jobs:
       - name: Upload RVP
         uses: actions/upload-artifact@v4
         with:
-          name: kleinanzeigen-revanced-experimental
+          name: kleinanzeigen-revanced-experimental-v2
           path: revanced-patches/patches/build/libs/*.rvp
