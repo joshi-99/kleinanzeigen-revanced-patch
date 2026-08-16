@@ -28,32 +28,34 @@ jobs:
           path = Path("patches/src/main/kotlin/app/revanced/patches/kleinanzeigen/ads/Fingerprints.kt")
           text = path.read_text()
 
-          old = '''internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {
-              name("init")
-              definingClass("/Liberty;")
-          }'''
+          old = "\n".join([
+              "internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {",
+              '    name("init")',
+              '    definingClass("/Liberty;")',
+              "}"
+          ])
 
-          new = '''internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {
-    returnType("V")
-    parameterTypes("Ljava/util/ArrayList;")
-    strings(
-        "KEY_LIBERTY_REFRESH_INTERVAL",
-        "https://ib.adnxs.com/openrtb2/prebid",
-        "libertyConfig",
-        "MicrosoftClarityService: Failed to initialize Microsoft Clarity SDK"
-    )
-}'''
+          new = "\n".join([
+              "internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {",
+              '    returnType("V")',
+              '    parameterTypes("Ljava/util/ArrayList;")',
+              "    strings(",
+              '        "KEY_LIBERTY_REFRESH_INTERVAL",',
+              '        "https://ib.adnxs.com/openrtb2/prebid",',
+              '        "libertyConfig",',
+              '        "MicrosoftClarityService: Failed to initialize Microsoft Clarity SDK"',
+              "    )",
+              "}"
+          ])
 
           if old not in text:
               print("ERROR: The expected original Kleinanzeigen fingerprint was not found.")
-              print(path.read_text())
+              print(text)
               raise SystemExit(1)
 
           path.write_text(text.replace(old, new))
           print("Kleinanzeigen fingerprint replaced successfully.")
-          PY
-
-      - name: Set up Java
+          PY      - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
