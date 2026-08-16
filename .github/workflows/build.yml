@@ -34,9 +34,15 @@ jobs:
           }'''
 
           new = '''internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {
-              name("g")
-              definingClass("Lebk/core/liberty/d;")
-          }'''
+    returnType("V")
+    parameterTypes("Ljava/util/ArrayList;")
+    strings(
+        "KEY_LIBERTY_REFRESH_INTERVAL",
+        "https://ib.adnxs.com/openrtb2/prebid",
+        "libertyConfig",
+        "MicrosoftClarityService: Failed to initialize Microsoft Clarity SDK"
+    )
+}'''
 
           if old not in text:
               print("ERROR: The expected original Kleinanzeigen fingerprint was not found.")
