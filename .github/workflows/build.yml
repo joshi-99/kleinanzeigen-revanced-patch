@@ -1,0 +1,79 @@
+name: Build Kleinanzeigen ReVanced Patch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone official ReVanced patches
+        run: |
+          git clone --depth 1 https://github.com/ReVanced/revanced-patches.git revanced-patches
+
+      - name: Apply Kleinanzeigen 2026.33.1 fix
+        working-directory: revanced-patches
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path("patches/src/main/kotlin/app/revanced/patches/kleinanzeigen/ads/Fingerprints.kt")
+          text = path.read_text()
+
+          old = '''internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {
+              name("init")
+              definingClass("/Liberty;")
+          }'''
+
+          new = '''internal val BytecodePatchContext.getLibertyInitMethod by gettingFirstMethodDeclaratively {
+              name("g")
+              definingClass("Lebk/core/liberty/d;")
+          }'''
+
+          if old not in text:
+              print("ERROR: The expected original Kleinanzeigen fingerprint was not found.")
+              print(path.read_text())
+              raise SystemExit(1)
+
+          path.write_text(text.replace(old, new))
+          print("Kleinanzeigen fingerprint replaced successfully.")
+          PY
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build Android patch bundle
+        working-directory: revanced-patches
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :patches:buildAndroid \
+            -Pgpr.user="${GITHUB_ACTOR}" \
+            -Pgpr.key="${GITHUB_TOKEN}"
+
+      - name: Show generated files
+        working-directory: revanced-patches
+        run: |
+          find patches/build/libs -maxdepth 1 -type f -print
+
+      - name: Upload RVP
+        uses: actions/upload-artifact@v4
+        with:
+          name: kleinanzeigen-revanced-experimental
+          path: revanced-patches/patches/build/libs/*.rvp
