@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Clone official ReVanced patches
         run: |
-          git clone --depth 1 https://github.com/ReVanced/revanced-patches.git revanced-patches
+          git clone --depth 1 https://gitlab.com/ReVanced/revanced-patches.git revanced-patches
 
       - name: Apply Kleinanzeigen 2026.33.1 fix
         working-directory: revanced-patches
