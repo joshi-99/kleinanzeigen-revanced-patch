@@ -56,7 +56,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-            - name: Build Android patch bundle
+      - name: Build Android patch bundle
         working-directory: revanced-patches
         env:
           ORG_GRADLE_PROJECT_githubPackagesUsername: ${{ github.actor }}
