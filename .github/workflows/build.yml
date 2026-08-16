@@ -55,7 +55,8 @@ jobs:
 
           path.write_text(text.replace(old, new))
           print("Kleinanzeigen fingerprint replaced successfully.")
-          PY      - name: Set up Java
+          PY      
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
